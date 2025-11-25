@@ -1,0 +1,34 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Build
+dist/
+build/
+out/
+
+# Vite
+vite.config.timestamp-*.mjs
+
+# VSCode
+.vscode/
+.history/
+
+# Logs
+*.log
+
+# Temporary
+*.tmp
+*.temp
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
