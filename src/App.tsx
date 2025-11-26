@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -11,16 +11,28 @@ import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import * as authService from "@/services/authService";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(authService.isAuthenticated());
+  }, []);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
+    authService.logout();
     setIsAuthenticated(false);
+    // redirect to login is handled by Navbar link
+  };
+
+  const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+    if (!authService.isAuthenticated()) return <Navigate to="/login" replace />;
+    return children;
   };
 
   return (
@@ -39,7 +51,9 @@ const App = () => {
                 <Route
                   path="/admin"
                   element={
-                    isAuthenticated ? <Admin /> : <Navigate to="/login" replace />
+                    <ProtectedRoute>
+                      <Admin />
+                    </ProtectedRoute>
                   }
                 />
                 <Route path="*" element={<NotFound />} />

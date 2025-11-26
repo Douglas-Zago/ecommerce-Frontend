@@ -18,7 +18,7 @@ export const Navbar = ({ isAuthenticated = false, onLogout }: NavbarProps) => {
         <Link to="/" className="flex items-center space-x-2">
           <Package className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            E-Shop
+            ZagoExpress
           </span>
         </Link>
 

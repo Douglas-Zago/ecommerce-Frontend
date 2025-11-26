@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockLogin } from "@/services/mockData";
+import * as authService from "@/services/authService";
 import { toast } from "sonner";
 import { LogIn } from "lucide-react";
 
@@ -21,20 +21,24 @@ export default function Login({ onLogin }: LoginProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    setTimeout(() => {
-      const isValid = mockLogin(username, password);
-      
-      if (isValid) {
+    try {
+      const res = await authService.login(username, password);
+      if (res.success) {
         toast.success("Login realizado com sucesso!");
         onLogin();
-        navigate("/admin");
+        setUsername("");
+        setPassword("");
+        navigate("/admin", { replace: true });
       } else {
-        toast.error("Credenciais inválidas. Tente admin/admin");
+        toast.error("Credenciais inválidas. Verifique usuário e senha.");
+        setPassword("");
       }
-      
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Erro ao realizar login. Tente novamente.";
+      toast.error(msg);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -80,8 +84,7 @@ export default function Login({ onLogin }: LoginProps) {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
-            <p>Para demonstração, use:</p>
-            <p className="font-mono mt-1">usuário: admin | senha: admin</p>
+            <p>Área administrativa. Use suas credenciais de acesso.</p>
           </div>
         </CardContent>
       </Card>

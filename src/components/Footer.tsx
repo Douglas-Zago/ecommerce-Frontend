@@ -8,7 +8,7 @@ export const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Package className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold">E-Shop</span>
+              <span className="text-lg font-bold">ZagoExpress</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Sua loja online completa com os melhores produtos e preços.
@@ -37,7 +37,7 @@ export const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} E-Shop. Todos os direitos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} ZagoExpress – Desenvolvido por Douglas Zago.</p>
         </div>
       </div>
     </footer>

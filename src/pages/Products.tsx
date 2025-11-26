@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
-import { mockProducts } from "@/services/mockData";
+import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Category } from "@/types/product";
 
@@ -15,11 +15,30 @@ const categories: { value: Category; label: string }[] = [
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<Category>("todos");
+  const [products, setProducts] = useState([] as any[]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await api.get("/products");
+        setProducts(res.data || []);
+      } catch (err: any) {
+        setError("Erro ao carregar produtos.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const filteredProducts =
     selectedCategory === "todos"
-      ? mockProducts
-      : mockProducts.filter((p) => p.category === selectedCategory);
+      ? products
+      : products.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="min-h-screen py-8">
@@ -51,11 +70,17 @@ export default function Products() {
         </div>
 
         
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-16">Carregando produtos...</div>
+        ) : error ? (
+          <div className="text-center py-16 text-destructive">{error}</div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-16">

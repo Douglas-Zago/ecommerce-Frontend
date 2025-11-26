@@ -1,11 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
-import { mockProducts } from "@/services/mockData";
+import { useEffect, useState } from "react";
+import api from "@/services/api";
 import { ArrowRight, ShoppingBag, Truck, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const featuredProducts = mockProducts.slice(0, 4);
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get("/products");
+        setFeaturedProducts((res.data || []).slice(0, 4));
+      } catch (e) {
+        // ignore for featured
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -14,7 +31,7 @@ export default function Home() {
         <div className="container px-4 py-20 md:py-32">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              Bem-vindo ao E-Shop
+              Bem-vindo ao ZagoExpress
             </h1>
             <p className="text-lg md:text-xl mb-8 opacity-90 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150">
               Encontre os melhores produtos com preços incríveis. 

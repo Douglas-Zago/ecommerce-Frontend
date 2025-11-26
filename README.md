@@ -20,7 +20,7 @@ Este repositório contém o front-end da aplicação de e‑commerce, desenvolvi
 - `src/components/` — componentes e UI reutilizáveis
 - `src/contexts/` — Context API (ex.: `CartContext`)
 - `src/pages/` — páginas da aplicação
-- `src/services/` — chamadas à API / mocks
+- `src/services/` — chamadas à API
 
 **Como executar (PowerShell)**
 

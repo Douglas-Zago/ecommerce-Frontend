@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
-import { mockProducts } from "@/services/mockData";
+import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +25,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Admin() {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
@@ -49,29 +49,58 @@ export default function Admin() {
     setEditingProduct(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const productData: Product = {
-      id: editingProduct?.id || Date.now().toString(),
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      image: formData.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
-      category: formData.category,
-      stock: parseInt(formData.stock),
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.get("/products");
+        setProducts(res.data || []);
+      } catch (err) {
+        // ignore for now
+      }
     };
+    load();
+  }, []);
 
-    if (editingProduct) {
-      setProducts(products.map((p) => (p.id === editingProduct.id ? productData : p)));
-      toast.success("Produto atualizado com sucesso!");
-    } else {
-      setProducts([...products, productData]);
-      toast.success("Produto criado com sucesso!");
+  const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  (async () => {
+    // validação mínima
+    if (!formData.name || !formData.description || !formData.price || !formData.stock) {
+      toast.error("Preencha todos os campos obrigatórios!");
+      return;
     }
 
-    setIsDialogOpen(false);
-    resetForm();
+    const productData = {
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      price: Number(formData.price),
+      image:
+        formData.image.trim() ||
+         "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg",
+      category: formData.category,
+      stock: Number(formData.stock),
+    };
+
+    try {
+      if (editingProduct) {
+        const res = await api.put(`/products/${editingProduct.id}`, productData);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProduct.id ? res.data : p))
+        );
+        toast.success("Produto atualizado com sucesso!");
+      } else {
+        const res = await api.post("/products", productData);
+        setProducts((prev) => [...prev, res.data]);
+        toast.success("Produto criado com sucesso!");
+      }
+    } catch (err) {
+      toast.error("Erro ao salvar produto.");
+    } finally {
+      setIsDialogOpen(false);
+      resetForm();
+    }
+  })();
   };
 
   const handleEdit = (product: Product) => {
@@ -88,8 +117,15 @@ export default function Admin() {
   };
 
   const handleDelete = (id: string) => {
-    setProducts(products.filter((p) => p.id !== id));
-    toast.success("Produto removido com sucesso!");
+    (async () => {
+      try {
+        await api.delete(`/products/${id}`);
+        setProducts((p) => p.filter((x) => x.id !== id));
+        toast.success("Produto removido com sucesso!");
+      } catch (err) {
+        toast.error("Erro ao remover produto.");
+      }
+    })();
   };
 
   return (
